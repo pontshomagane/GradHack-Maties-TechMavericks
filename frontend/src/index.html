@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendation System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Banking Recommendation</h1>
+        <form onsubmit="getBankingRecommendation(); return false;">
+            <label for="income">Income:</label>
+            <input type="number" id="income" required>
+            <label for="spending">Spending:</label>
+            <input type="number" id="spending" required>
+            <button type="submit">Get Recommendation</button>
+        </form>
+        <div id="bankingRecommendation"></div>
+
+        <h1>Car Insurance Recommendation</h1>
+        <form onsubmit="getCarInsuranceRecommendation(); return false;">
+            <label for="carModel">Car Model:</label>
+            <input type="text" id="carModel" required>
+            <label for="distanceDriven">Distance Driven (km/month):</label>
+            <input type="number" id="distanceDriven" required>
+            <label for="monthlyIncome">Monthly Income:</label>
+            <input type="number" id="monthlyIncome" required>
+            <label for="insuranceBudget">Insurance Budget:</label>
+            <input type="number" id="insuranceBudget" required>
+            <button type="submit">Get Recommendation</button>
+        </form>
+        <div id="carInsuranceRecommendation"></div>
+    </div>
+
+    <script>
+        async function getBankingRecommendation() {
+            const income = document.getElementById('income').value;
+            const spending = document.getElementById('spending').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/recommend/banking', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ income: income, spending: spending })
+                });
+
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('bankingRecommendation').innerText = result.recommendation;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function getCarInsuranceRecommendation() {
+            const carModel = document.getElementById('carModel').value;
+            const distanceDriven = document.getElementById('distanceDriven').value;
+            const monthlyIncome = document.getElementById('monthlyIncome').value;
+            const insuranceBudget = document.getElementById('insuranceBudget').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/recommend/car-insurance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        carModel: carModel,
+                        distanceDriven: distanceDriven,
+                        monthlyIncome: monthlyIncome,
+                        insuranceBudget: insuranceBudget
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('carInsuranceRecommendation').innerText = result.recommendation;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
