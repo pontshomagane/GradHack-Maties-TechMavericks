@@ -4,35 +4,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommendation System</title>
+    <title>Recommendation System with Chatbot</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>Banking Recommendation</h1>
-        <form onsubmit="getBankingRecommendation(); return false;">
-            <label for="income">Income:</label>
-            <input type="number" id="income" required>
-            <label for="spending">Spending:</label>
-            <input type="number" id="spending" required>
-            <button type="submit">Get Recommendation</button>
-        </form>
-        <div id="bankingRecommendation"></div>
 
-        <h1>Car Insurance Recommendation</h1>
-        <form onsubmit="getCarInsuranceRecommendation(); return false;">
-            <label for="carModel">Car Model:</label>
-            <input type="text" id="carModel" required>
-            <label for="distanceDriven">Distance Driven (km/month):</label>
-            <input type="number" id="distanceDriven" required>
-            <label for="monthlyIncome">Monthly Income:</label>
-            <input type="number" id="monthlyIncome" required>
-            <label for="insuranceBudget">Insurance Budget:</label>
-            <input type="number" id="insuranceBudget" required>
-            <button type="submit">Get Recommendation</button>
-        </form>
-        <div id="carInsuranceRecommendation"></div>
+        <!-- Products Section (initial view) -->
+        <section id="products">
+            <h1>Bank Products</h1>
+            <div class="product-section">
+                <div class="product-category" onclick="toggleDetails('bankingSuitesDetails', 'bankingSuitesIcon')">
+                    <h2>Banking Suites <span id="bankingSuitesIcon" class="toggle-icon">+</span></h2>
+                    <ul id="bankingSuitesDetails" class="details" style="display: none;">
+                        <li>Gold Card</li>
+                        <li>Black Card</li>
+                        <li>Platinum Card</li>
+                        <li>Purple Card</li>
+                    </ul>
+                </div>
+                <div class="product-category" onclick="toggleDetails('creditCardsDetails', 'creditCardsIcon')">
+                    <h2>Credit Cards <span id="creditCardsIcon" class="toggle-icon">+</span></h2>
+                    <ul id="creditCardsDetails" class="details" style="display: none;">
+                        <li>Gold Card</li>
+                        <li>Black Card</li>
+                        <li>Platinum Card</li>
+                    </ul>
+                </div>
+                <div class="product-category" onclick="toggleDetails('savingsAccountsDetails', 'savingsAccountsIcon')">
+                    <h2>Savings Accounts <span id="savingsAccountsIcon" class="toggle-icon">+</span></h2>
+                    <ul id="savingsAccountsDetails" class="details" style="display: none;">
+                        <li>Demand Savings Account</li>
+                        <li>Notice Savings Account</li>
+                        <li>Tax-free Demand Savings Account</li>
+                        <li>Fixed Deposit Account</li>
+                    </ul>
+                </div>
+            </div>
+            <button onclick="showRecommendations()">Go to Recommendations</button>
+        </section>
+
+        <!-- Recommendations Section (hidden initially) -->
+        <section id="recommendations" style="display: none;">
+            <h1>Recommendations</h1>
+            <div class="recommendation-form">
+                <h2>Banking Recommendations</h2>
+                <form onsubmit="getBankingRecommendation(); return false;">
+                    <label for="income">Income:</label>
+                    <input type="number" id="income" required>
+                    <label for="spending">Spending:</label>
+                    <input type="number" id="spending" required>
+                    <button type="submit">Get Recommendation</button>
+                </form>
+                <div id="bankingRecommendation"></div>
+            </div>
+
+            <div class="recommendation-form">
+                <h2>Car Insurance Recommendations</h2>
+                <form onsubmit="getCarInsuranceRecommendation(); return false;">
+                    <label for="carModel">Car Model:</label>
+                    <input type="text" id="carModel" required>
+                    <label for="distanceDriven">Distance Driven (km/month):</label>
+                    <input type="number" id="distanceDriven" required>
+                    <label for="monthlyIncome">Monthly Income:</label>
+                    <input type="number" id="monthlyIncome" required>
+                    <label for="insuranceBudget">Insurance Budget:</label>
+                    <input type="number" id="insuranceBudget" required>
+                    <button type="submit">Get Recommendation</button>
+                </form>
+                <div id="carInsuranceRecommendation"></div>
+            </div>
+
+            <div class="recommendation-form">
+                <h2>Travel Recommendations</h2>
+                <form onsubmit="getTravelRecommendation(); return false;">
+                    <label for="destination">Destination:</label>
+                    <input type="text" id="destination" required>
+                    <label for="budget">Budget:</label>
+                    <input type="number" id="budget" required>
+                    <button type="submit">Get Recommendation</button>
+                </form>
+                <div id="travelRecommendation"></div>
+            </div>
+
+            <button onclick="showProducts()">Back to Products</button>
+        </section>
+
+        <!-- Chatbot Section -->
+        <button onclick="showChatbot()">Show Chatbot</button>
+        <section id="chatbotSection" style="display: none;">
+            <div class="chatbot">
+                <h2>Recommendations Chatbot</h2>
+                <div id="chatbotConversation" class="conversation"></div>
+                <input type="text" id="userInput" placeholder="Ask a question...">
+                <button onclick="askQuestion()">Ask</button>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -41,6 +109,8 @@
             const spending = document.getElementById('spending').value;
 
             try {
+                document.getElementById('bankingRecommendation').innerText = 'Loading...';
+
                 const response = await fetch('http://127.0.0.1:5000/recommend/banking', {
                     method: 'POST',
                     headers: {
@@ -50,13 +120,13 @@
                 });
 
                 if (!response.ok) {
-                    const errorMessage = await response.text();
-                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const result = await response.json();
                 document.getElementById('bankingRecommendation').innerText = result.recommendation;
             } catch (error) {
+                document.getElementById('bankingRecommendation').innerText = 'Error fetching recommendation';
                 console.error('Error:', error);
             }
         }
@@ -68,6 +138,8 @@
             const insuranceBudget = document.getElementById('insuranceBudget').value;
 
             try {
+                document.getElementById('carInsuranceRecommendation').innerText = 'Loading...';
+
                 const response = await fetch('http://127.0.0.1:5000/recommend/car-insurance', {
                     method: 'POST',
                     headers: {
@@ -82,16 +154,99 @@
                 });
 
                 if (!response.ok) {
-                    const errorMessage = await response.text();
-                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const result = await response.json();
                 document.getElementById('carInsuranceRecommendation').innerText = result.recommendation;
             } catch (error) {
+                document.getElementById('carInsuranceRecommendation').innerText = 'Error fetching recommendation';
                 console.error('Error:', error);
             }
         }
+
+        async function getTravelRecommendation() {
+            const destination = document.getElementById('destination').value;
+            const budget = document.getElementById('budget').value;
+
+            try {
+                document.getElementById('travelRecommendation').innerText = 'Loading...';
+
+                const response = await fetch('http://127.0.0.1:5000/recommend/travel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        destination: destination,
+                        budget: budget
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('travelRecommendation').innerText = result.recommendation;
+            } catch (error) {
+                document.getElementById('travelRecommendation').innerText = 'Error fetching recommendation';
+                console.error('Error:', error);
+            }
+        }
+
+        async function askQuestion() {
+            const question = document.getElementById('userInput').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                appendMessage(question, 'user');
+                appendMessage(result.response, 'bot');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+            // Clear user input after asking
+            document.getElementById('userInput').value = '';
+        }
+
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.innerText = message;
+            document.getElementById('chatbotConversation').appendChild(messageElement);
+        }
+
+        function showRecommendations() {
+            document.getElementById('products').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'block';
+            document.getElementById('chatbotSection').style.display = 'none';
+        }
+
+        function showProducts() {
+            document.getElementById('products').style.display = 'block';
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('chatbotSection').style.display = 'none';
+        }
+
+        function showChatbot() {
+            document.getElementById('products').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('chatbotSection').style.display = 'block';
+        }
+
     </script>
 </body>
 
