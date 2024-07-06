@@ -1,83 +1,114 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.neighbors import NearestNeighbors
-import numpy as np
+import os
+import vertexai
+from vertexai.generative_models import GenerativeModel
+import vertexai.preview.generative_models as generative_models
 
 app = Flask(__name__)
-CORS(app)  # Allow CORS for all origins
+CORS(app)  # Enable CORS for all routes
 
-# Initialize data and models
-np.random.seed(0)
-banking_data = {
-    'income': np.random.randint(30000, 150000, 100),
-    'spending': np.random.randint(1000, 5000, 100)
+# Initialize Vertex AI
+vertexai.init(project="gradhack24jnb-610", location="us-central1")
+
+# Load data from text file
+data_file = os.path.join(os.path.dirname(__file__), 'data.txt')
+try:
+    with open(data_file, 'r', encoding='utf-8') as file:
+        textsi_1 = file.read()
+except FileNotFoundError:
+    textsi_1 = ""
+
+model = GenerativeModel(
+    "gemini-1.5-flash-001",
+    system_instruction=[textsi_1]
+)
+
+generation_config = {
+    "max_output_tokens": 1024,
+    "temperature": 0.2,
+    "top_p": 0.95,
 }
-insurance_data = {
-    'user_id': np.arange(1, 101),
-    'income': np.random.randint(30000, 150000, 100),
-    # 1: Health, 2: Life, 3: Auto, 4: Home
-    'insurance_pref': np.random.choice([1, 2, 3, 4], 100)
+
+safety_settings = {
+    generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
 }
 
-banking_df = pd.DataFrame(banking_data)
-insurance_df = pd.DataFrame(insurance_data)
 
-# Train models
-kmeans = KMeans(n_clusters=3)
-banking_df['cluster'] = kmeans.fit_predict(banking_df[['income', 'spending']])
-
-insurance_model = NearestNeighbors(n_neighbors=3, algorithm='auto').fit(
-    insurance_df[['insurance_pref', 'income']])
-distances, indices = insurance_model.kneighbors(
-    insurance_df[['insurance_pref', 'income']])
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 
 
-def recommend_banking_services(cluster):
-    if cluster == 0:
-        return "Recommend savings account"
-    elif cluster == 1:
-        return "Recommend investment options"
-    else:
-        return "Recommend premium credit cards"
+@app.route('/data', methods=['GET'])
+def get_data():
+    try:
+        with open(data_file, 'r', encoding='utf-8') as file:
+            data = file.read()
+        return jsonify({"data": data})
+    except FileNotFoundError:
+        return jsonify({"error": "File not found"}), 404
 
 
-banking_df['recommendation'] = banking_df['cluster'].apply(
-    recommend_banking_services)
-
-
-def recommend_insurance(user_index):
-    similar_users = indices[user_index][1:]
-    similar_prefs = insurance_df.iloc[similar_users]['insurance_pref']
-    recommendation = similar_prefs.mode()[0]
-    return recommendation
-
-
-insurance_df['insurance_recommendation'] = insurance_df.index.to_series().apply(
-    recommend_insurance)
-
-
-@app.route('/recommend/banking', methods=['POST'])
-def recommend_banking():
+@app.route('/ask', methods=['POST'])
+def ask():
     data = request.json
-    income = data['income']
-    spending = data['spending']
-    cluster = kmeans.predict([[income, spending]])[0]
-    recommendation = recommend_banking_services(cluster)
+    question = data['question']
+
+    try:
+        responses = model.generate_content(
+            [question],
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            stream=True,
+        )
+
+        response_text = "".join([response.text for response in responses])
+        return jsonify({'response': response_text})
+    except Exception as e:
+        return jsonify({'response': f"Error generating response: {str(e)}"})
+
+
+# Endpoint for banking recommendations (you'll integrate your logic here)
+@app.route('/recommend/banking', methods=['POST'])
+def get_banking_recommendation():
+    data = request.json
+    income = data.get('income')
+    spending = data.get('spending')
+
+    # Replace with actual recommendation logic based on income and spending
+    recommendation = f"Recommendation for banking based on income {income} and spending {spending}"
+
     return jsonify({'recommendation': recommendation})
 
 
+# Endpoint for car insurance recommendations (you'll integrate your logic here)
 @app.route('/recommend/car-insurance', methods=['POST'])
-def recommend_car_insurance():
+def get_car_insurance_recommendation():
     data = request.json
-    car_model = data['carModel']
-    distance_driven = data['distanceDriven']
-    monthly_income = data['monthlyIncome']
-    insurance_budget = data['insuranceBudget']
+    car_model = data.get('carModel')
+    distance_driven = data.get('distanceDriven')
+    monthly_income = data.get('monthlyIncome')
+    insurance_budget = data.get('insuranceBudget')
 
-    # Example recommendation logic based on input data
-    recommendation = f"Recommend car insurance for {car_model} based on income {monthly_income} and driving {distance_driven} km/month."
+    # Replace with actual recommendation logic based on car details and financials
+    recommendation = f"Recommendation for car insurance based on car model {car_model}, distance {distance_driven}, income {monthly_income}, and budget {insurance_budget}"
+
+    return jsonify({'recommendation': recommendation})
+
+
+# Endpoint for travel recommendations (you'll integrate your logic here)
+@app.route('/recommend/travel', methods=['POST'])
+def get_travel_recommendation():
+    data = request.json
+    destination = data.get('destination')
+    budget = data.get('budget')
+
+    # Replace with actual recommendation logic based on destination and budget
+    recommendation = f"Recommendation for travel based on destination {destination} and budget {budget}"
 
     return jsonify({'recommendation': recommendation})
 
