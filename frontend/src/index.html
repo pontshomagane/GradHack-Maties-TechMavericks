@@ -4,93 +4,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommendation System</title>
+    <title>Recommendation System with Chatbot</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-P4PFQOhf7kQa4hO8fhU2gddkrOmsrZkN3Wh5hASjiuFosq4i9GP7q3/Zf3d0nivLS1vqSDPtGQ0ZUZ4jC0MeHg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Additional styles for the dropdown functionality */
+        .product-section h3 {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-section h3:hover {
+            color: darkblue;
+        }
+
+        .product-section ul {
+            display: none;
+            margin-top: 5px;
+        }
+
+        .product-section ul.visible {
+            display: block;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background-color: #DCF8C6; /* Light green */
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #E3F2FD; /* Light blue */
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Banking Recommendation</h1>
-        <form onsubmit="getBankingRecommendation(); return false;">
-            <label for="income">Income:</label>
-            <input type="number" id="income" required>
-            <label for="spending">Spending:</label>
-            <input type="number" id="spending" required>
-            <button type="submit">Get Recommendation</button>
-        </form>
-        <div id="bankingRecommendation"></div>
+        <!-- Products Section (initial view) -->
+        <section id="products">
+            <h1>Welcome to Discovery</h1>
 
-        <h1>Car Insurance Recommendation</h1>
-        <form onsubmit="getCarInsuranceRecommendation(); return false;">
-            <label for="carModel">Car Model:</label>
-            <input type="text" id="carModel" required>
-            <label for="distanceDriven">Distance Driven (km/month):</label>
-            <input type="number" id="distanceDriven" required>
-            <label for="monthlyIncome">Monthly Income:</label>
-            <input type="number" id="monthlyIncome" required>
-            <label for="insuranceBudget">Insurance Budget:</label>
-            <input type="number" id="insuranceBudget" required>
-            <button type="submit">Get Recommendation</button>
-        </form>
-        <div id="carInsuranceRecommendation"></div>
+            <!-- Banking Products -->
+            <div class="product-section">
+                <h2>Banking Products</h2>
+                <p>
+                    Discovery offers a range of banking suites, credit cards, and savings accounts to cater to the
+                    diverse
+                    financial needs of your customers.
+                </p>
+                <h3 class="toggle"><span>Banking Suites <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>Gold Card</li>
+                    <li>Black Card</li>
+                    <li>Platinum Card</li>
+                    <li>Purple Card</li>
+                </ul>
+                <h3 class="toggle"><span>Credit Cards <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>Gold Card</li>
+                    <li>Black Card</li>
+                    <li>Platinum Card</li>
+                </ul>
+                <h3 class="toggle"><span>Savings Accounts <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>Demand Savings Account</li>
+                    <li>Notice Savings Account</li>
+                    <li>Tax-free Demand Savings Account</li>
+                    <li>Fixed Deposit Account</li>
+                </ul>
+            </div>
+
+            <!-- Medical Plans -->
+            <div class="product-section">
+                <h2>Medical Plans</h2>
+                <p>
+                    Discovery provides comprehensive medical plans tailored to meet various healthcare needs.
+                </p>
+                <h3 class="toggle"><span>Executive Plan <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>From R10,303 - Extensive cover for in-hospital and day-to-day benefits</li>
+                    <li>Extended chronic medicine cover</li>
+                    <li>Unlimited Above Threshold Benefit</li>
+                </ul>
+
+                <h3 class="toggle"><span>Comprehensive Series <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>From R7,163 - Comprehensive cover for in-hospital and day-to-day</li>
+                    <li>Extended chronic medicine cover</li>
+                    <li>Limited Above Threshold Benefit</li>
+                </ul>
+
+                <h3 class="toggle"><span>Priority Series <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>From R4,531 - Cost-effective in-hospital cover</li>
+                    <li>Essential chronic medicine cover</li>
+                    <li>Limited Above Threshold Benefit</li>
+                </ul>
+
+                <h3 class="toggle"><span>Saver Series <i class="fas fa-chevron-down"></i></span></h3>
+                <ul class="toggle-content">
+                    <li>From R2,673 - The most economical in-hospital cover</li>
+                    <li>Essential chronic medicine cover</li>
+                    <li>Day-to-day benefits through a Medical Savings Account</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Chatbot Section -->
+        <button onclick="showChatbot()">Show Chatbot</button>
+        <section id="chatbotSection" style="display: none;">
+            <div class="chatbot">
+                <h2>Recommendations Chatbot</h2>
+                <div id="chatbotConversation" class="conversation"></div>
+                <input type="text" id="userNameInput" placeholder="Enter your name">
+                <button onclick="askName()">Submit</button>
+                <input type="text" id="userInput" placeholder="Ask a question..." style="display: none;">
+                <button onclick="askQuestion()" style="display: none;">Ask</button>
+                <button onclick="exitChatbot()">Back to Products</button>
+                <button onclick="submitToDiscovery()">Submit to Discovery</button>
+            </div>
+        </section>
     </div>
 
     <script>
-        async function getBankingRecommendation() {
-            const income = document.getElementById('income').value;
-            const spending = document.getElementById('spending').value;
+        let userName = '';
 
+        // Function to toggle visibility of toggle-content elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggles = document.querySelectorAll('.toggle');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const content = toggle.nextElementSibling;
+                    content.classList.toggle('visible');
+                });
+            });
+        });
+
+        async function askName() {
+            userName = document.getElementById('userNameInput').value;
+            if (userName) {
+                appendMessage(`Hello, my name is ${userName}`, 'user');
+                askQuestionWithName(userName);
+                document.getElementById('userNameInput').style.display = 'none';
+                document.getElementById('userInput').style.display = 'block';
+                document.querySelector('button[onclick="askQuestion()"]').style.display = 'block';
+                document.querySelector('button[onclick="askName()"]').style.display = 'none';
+            } else {
+                alert('Please enter your name');
+            }
+        }
+
+        async function askQuestionWithName(name) {
             try {
-                const response = await fetch('http://127.0.0.1:5000/recommend/banking', {
+                const response = await fetch('http://127.0.0.1:5000/ask', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ income: income, spending: spending })
+                    body: JSON.stringify({ question: `Hello, my name is ${name}` })
                 });
 
                 if (!response.ok) {
-                    const errorMessage = await response.text();
-                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const result = await response.json();
-                document.getElementById('bankingRecommendation').innerText = result.recommendation;
+                appendMessage(result.response, 'bot');
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        async function getCarInsuranceRecommendation() {
-            const carModel = document.getElementById('carModel').value;
-            const distanceDriven = document.getElementById('distanceDriven').value;
-            const monthlyIncome = document.getElementById('monthlyIncome').value;
-            const insuranceBudget = document.getElementById('insuranceBudget').value;
+        async function askQuestion() {
+            const question = document.getElementById('userInput').value;
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/recommend/car-insurance', {
+                const response = await fetch('http://127.0.0.1:5000/ask', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        carModel: carModel,
-                        distanceDriven: distanceDriven,
-                        monthlyIncome: monthlyIncome,
-                        insuranceBudget: insuranceBudget
-                    })
+                    body: JSON.stringify({ question: question })
                 });
 
                 if (!response.ok) {
-                    const errorMessage = await response.text();
-                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorMessage}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const result = await response.json();
-                document.getElementById('carInsuranceRecommendation').innerText = result.recommendation;
+                appendMessage(question, 'user');
+                appendMessage(result.response, 'bot');
             } catch (error) {
                 console.error('Error:', error);
             }
+
+            // Clear user input after asking
+            document.getElementById('userInput').value = '';
+        }
+
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            messageElement.innerText = message;
+            document.getElementById('chatbotConversation').appendChild(messageElement);
+        }
+
+        function showChatbot() {
+            document.getElementById('products').style.display = 'none';
+            document.getElementById('chatbotSection').style.display = 'block';
+        }
+
+        function exitChatbot() {
+            document.getElementById('chatbotSection').style.display = 'none';
+            document.getElementById('products').style.display = 'block';
+        }
+
+        function submitToDiscovery() {
+            const confirmation = confirm('Are you sure you want to submit this form to Discovery?');
+            if (confirmation) {
+                const summary = document.getElementById('chatbotConversation').innerText;
+                saveSummaryToTextFile(summary);
+            }
+        }
+
+        function saveSummaryToTextFile(summary) {
+            const blob = new Blob([summary], { type: 'text/plain' });
+            const fileName = `${userName}_summary.txt`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
         }
     </script>
 </body>
