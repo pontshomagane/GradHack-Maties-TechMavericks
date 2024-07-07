@@ -72,45 +72,45 @@ def ask():
         return jsonify({'response': f"Error generating response: {str(e)}"})
 
 
-# Endpoint for banking recommendations (you'll integrate your logic here)
-@app.route('/recommend/banking', methods=['POST'])
-def get_banking_recommendation():
-    data = request.json
-    income = data.get('income')
-    spending = data.get('spending')
+# Endpoint for banking recommendations
+# @app.route('/recommend/banking', methods=['POST'])
+# def get_banking_recommendation():
+#     data = request.json
+#     income = data.get('income')
+#     spending = data.get('spending')
 
-    # Replace with actual recommendation logic based on income and spending
-    recommendation = f"Recommendation for banking based on income {income} and spending {spending}"
+#     # Replace with actual recommendation logic based on income and spending
+#     recommendation = f"Recommendation for banking based on income {income} and spending {spending}"
 
-    return jsonify({'recommendation': recommendation})
-
-
-# Endpoint for car insurance recommendations (you'll integrate your logic here)
-@app.route('/recommend/car-insurance', methods=['POST'])
-def get_car_insurance_recommendation():
-    data = request.json
-    car_model = data.get('carModel')
-    distance_driven = data.get('distanceDriven')
-    monthly_income = data.get('monthlyIncome')
-    insurance_budget = data.get('insuranceBudget')
-
-    # Replace with actual recommendation logic based on car details and financials
-    recommendation = f"Recommendation for car insurance based on car model {car_model}, distance {distance_driven}, income {monthly_income}, and budget {insurance_budget}"
-
-    return jsonify({'recommendation': recommendation})
+#     return jsonify({'recommendation': recommendation})
 
 
-# Endpoint for travel recommendations (you'll integrate your logic here)
-@app.route('/recommend/travel', methods=['POST'])
-def get_travel_recommendation():
-    data = request.json
-    destination = data.get('destination')
-    budget = data.get('budget')
+# Endpoint for car insurance recommendations
+# @app.route('/recommend/car-insurance', methods=['POST'])
+# def get_car_insurance_recommendation():
+#     data = request.json
+#     car_model = data.get('carModel')
+#     distance_driven = data.get('distanceDriven')
+#     monthly_income = data.get('monthlyIncome')
+#     insurance_budget = data.get('insuranceBudget')
 
-    # Replace with actual recommendation logic based on destination and budget
-    recommendation = f"Recommendation for travel based on destination {destination} and budget {budget}"
+#     # Replace with actual recommendation logic based on car details and financials
+#     recommendation = f"Recommendation for car insurance based on car model {car_model}, distance {distance_driven}, income {monthly_income}, and budget {insurance_budget}"
 
-    return jsonify({'recommendation': recommendation})
+#     return jsonify({'recommendation': recommendation})
+
+
+# Endpoint for travel recommendations
+# @app.route('/recommend/travel', methods=['POST'])
+# def get_travel_recommendation():
+#     data = request.json
+#     destination = data.get('destination')
+#     budget = data.get('budget')
+
+#     # Replace with actual recommendation logic based on destination and budget
+#     recommendation = f"Recommendation for travel based on destination {destination} and budget {budget}"
+
+#     return jsonify({'recommendation': recommendation})
 
 
 if __name__ == '__main__':
